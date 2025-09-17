@@ -1,5 +1,4 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
-import { ProxyToSelf } from 'workers-mcp';
 
 // Board member personas with detailed frameworks
 const BOARD_MEMBERS = {
@@ -151,6 +150,32 @@ const BOARD_MEMBERS = {
 
 export default class AdvisoryBoardMCP extends WorkerEntrypoint {
   
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    
+    if (url.pathname === '/sse') {
+      return this.handleSSE(request);
+    }
+    
+    return new Response('Advisory Board MCP Server is running!', {
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  }
+
+  private async handleSSE(request: Request): Promise<Response> {
+    // Basic SSE endpoint for MCP
+    return new Response('data: {"jsonrpc":"2.0","id":1,"result":"Advisory Board MCP Server"}\n\n', {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      }
+    });
+  }
+
   /**
    * Get individual advice from a specific board member
    */
@@ -176,7 +201,7 @@ COMMUNICATION STYLE:
 
 ADVISORY FRAMEWORK:
 When consulted, I always:
-1. Ask clarifying questions about the situation: ${advisor.framework.clarifyingQuestions.join(' | ')}
+1. Ask clarifying questions: ${advisor.framework.clarifyingQuestions.join(' | ')}
 2. Apply my core philosophy: ${advisor.framework.coreApproach}
 3. Provide specific, actionable advice
 4. Challenge assumptions where appropriate
@@ -241,98 +266,4 @@ Format as a structured board meeting with clear sections for each advisor's comp
 
     return meeting_prompt;
   }
-
-  /**
-   * Get a specific decision framework from multiple advisors
-   */
-  async get_decision_framework(decision_type: string, key_factors: string): Promise<string> {
-    const framework_prompt = `ADVISORY BOARD DECISION FRAMEWORK
-
-DECISION TYPE: ${decision_type}
-KEY FACTORS: ${key_factors}
-
-Your board of advisors will now provide a structured decision-making framework:
-
-${Object.entries(BOARD_MEMBERS).map(([key, advisor]) => 
-  `${advisor.name}: What ${advisor.expertise.slice(0, 2).join(' and ')} factors should be considered?`
-).join('\n')}
-
-Please provide a comprehensive decision framework that synthesizes input from all board members, including:
-
-1. Critical Questions to Ask (from each advisor's perspective)
-2. Key Metrics/Criteria to Evaluate
-3. Potential Risks & Mitigation Strategies  
-4. Decision Timeline Recommendations
-5. Success Metrics & Follow-up Actions
-
-Make this framework practical and immediately actionable.`;
-
-    return framework_prompt;
-  }
-
-  /**
-   * Challenge a decision with contrarian perspectives
-   */
-  async challenge_decision(proposed_decision: string, reasoning: string): Promise<string> {
-    const challenge_prompt = `DEVIL'S ADVOCATE BOARD SESSION
-
-PROPOSED DECISION: ${proposed_decision}
-YOUR REASONING: ${reasoning}
-
-Your board will now challenge this decision from multiple angles:
-
-Charlie Munger will apply inversion thinking and identify cognitive biases
-Jamie Dimon will stress-test the financial and risk implications  
-Tim Cook will examine operational feasibility and execution challenges
-Warren Buffett will question the long-term value creation
-Maya Angelou will consider the human and ethical implications
-Art Gensler will evaluate the user/client experience impact
-
-Each advisor should:
-- Identify potential flaws in the reasoning
-- Present alternative perspectives
-- Highlight overlooked risks or opportunities
-- Suggest modifications or alternatives
-
-This is a constructive challenge session designed to strengthen your decision-making, not to discourage action. The goal is to ensure you've considered all angles before moving forward.`;
-
-    return challenge_prompt;
-  }
-
-  /**
-   * Get board recommendations for crisis management
-   */
-  async crisis_management(crisis_description: string, immediate_concerns: string, stakeholders_affected: string): Promise<string> {
-    const crisis_prompt = `EMERGENCY BOARD MEETING - CRISIS RESPONSE
-
-CRISIS: ${crisis_description}
-IMMEDIATE CONCERNS: ${immediate_concerns}  
-STAKEHOLDERS AFFECTED: ${stakeholders_affected}
-
-Your board is convening an emergency session to address this crisis:
-
-IMMEDIATE PRIORITIES (First 24-48 hours):
-- Tim Cook: Operational response and supply chain implications
-- Jamie Dimon: Financial exposure and liquidity concerns
-- Maya Angelou: Communication strategy and stakeholder messaging
-
-STRATEGIC RESPONSE (Week 1-4):
-- Warren Buffett: Long-term value protection and opportunity assessment
-- Charlie Munger: Decision-making frameworks to avoid further mistakes
-- Art Gensler: Brand and reputation management through design/experience
-
-Each advisor should provide:
-1. Immediate actions (next 24 hours)
-2. Week 1 priorities 
-3. Key messages for different stakeholders
-4. Metrics to track recovery progress
-5. Long-term strategic adjustments
-
-Focus on practical, executable recommendations that address both immediate stabilization and long-term recovery.`;
-
-    return crisis_prompt;
-  }
 }
-
-// Export for Cloudflare Workers
-export { ProxyToSelf };
