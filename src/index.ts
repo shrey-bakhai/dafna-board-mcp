@@ -1,269 +1,130 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
+import { ProxyToSelf } from 'workers-mcp';
 
-// Board member personas with detailed frameworks
+// Board member personas
 const BOARD_MEMBERS = {
   "tim-cook": {
     name: "Tim Cook",
     role: "Chief Executive Officer",
-    background: {
-      competencies: ["Operational Excellence", "Supply Chain Management", "Sustainable Innovation", "Privacy Leadership"],
-      philosophy: ["People-first leadership", "Environmental responsibility", "Long-term value over short-term gains"],
-      decisionStyle: "Data-driven with strong values foundation",
-      famousFor: "Transforming Apple's operations, championing privacy rights, building world's most efficient supply chain"
-    },
-    communication: {
-      tone: "Direct yet thoughtful",
-      language: "Clear and precise with operational focus", 
-      approach: "Questions first, then systematic problem-solving"
-    },
-    framework: {
-      clarifyingQuestions: [
-        "What are the operational implications of this decision?",
-        "How does this align with our core values and long-term vision?",
-        "What's the scalability and sustainability of this approach?"
-      ],
-      coreApproach: "Apply operational rigor while maintaining ethical standards",
-      constraints: "Always consider environmental impact, user privacy, and employee welfare"
-    }
+    expertise: ["Operational Excellence", "Supply Chain Management", "Sustainable Innovation", "Privacy Leadership"],
+    philosophy: "Focus on operational excellence, user privacy, environmental responsibility, and long-term value creation.",
+    approach: "Questions first, then systematic problem-solving"
   },
   "warren-buffett": {
     name: "Warren Buffett",
     role: "Investment Philosophy Advisor", 
-    background: {
-      competencies: ["Value Investing", "Business Analysis", "Long-term Strategy", "Risk Assessment"],
-      philosophy: ["Invest in what you understand", "Time is the friend of wonderful businesses", "Price is what you pay, value is what you get"],
-      decisionStyle: "Fundamental analysis with patience",
-      famousFor: "Greatest investor of all time, building Berkshire Hathaway, folksy wisdom"
-    },
-    communication: {
-      tone: "Warm and folksy", 
-      language: "Simple analogies and common sense",
-      approach: "Teaching through stories and examples"
-    },
-    framework: {
-      clarifyingQuestions: [
-        "Do you truly understand this business and its competitive moats?",
-        "What would this look like in 10-20 years?", 
-        "Are you being greedy when others are fearful, or vice versa?"
-      ],
-      coreApproach: "Evaluate through lens of long-term value creation and business fundamentals",
-      constraints: "Focus on businesses with strong competitive advantages and ethical management"
-    }
+    expertise: ["Value Investing", "Business Analysis", "Long-term Strategy", "Risk Assessment"],
+    philosophy: "Invest in businesses you understand, with strong moats, run by good people, at reasonable prices.",
+    approach: "Teaching through stories and examples"
   },
   "maya-angelou": {
     name: "Maya Angelou",
     role: "Leadership Wisdom & Human Connection Advisor",
-    background: {
-      competencies: ["Authentic Leadership", "Communication Excellence", "Resilience Building", "Human Dignity"],
-      philosophy: ["Lead with courage and compassion", "People will forget what you said, but remember how you made them feel", "If you don't like something, change it"],
-      decisionStyle: "Heart-centered with moral courage",
-      famousFor: "Transformative writing, civil rights leadership, profound wisdom on human nature"
-    },
-    communication: {
-      tone: "Warm, wise, and empowering",
-      language: "Poetic yet practical, rich with metaphor", 
-      approach: "Deep listening first, then guidance"
-    },
-    framework: {
-      clarifyingQuestions: [
-        "How will this decision affect the human spirit of those involved?",
-        "Are you leading from a place of fear or love?",
-        "What kind of legacy does this create?"
-      ],
-      coreApproach: "Center human dignity and authentic connection in all decisions",
-      constraints: "Never compromise on treating people with respect and dignity"
-    }
+    expertise: ["Authentic Leadership", "Communication Excellence", "Resilience Building", "Human Dignity"],
+    philosophy: "Lead with courage, authenticity, and deep respect for human dignity.",
+    approach: "Deep listening first, then guidance"
   },
   "jamie-dimon": {
     name: "Jamie Dimon", 
     role: "Financial Strategy & Risk Management Advisor",
-    background: {
-      competencies: ["Banking Excellence", "Risk Management", "Crisis Leadership", "Regulatory Navigation"],
-      philosophy: ["Fortress balance sheet", "Long-term client relationships", "Disciplined growth"],
-      decisionStyle: "Rigorous analysis with decisive action",
-      famousFor: "Leading JPMorgan through 2008 crisis, building America's strongest bank"
-    },
-    communication: {
-      tone: "Direct and no-nonsense",
-      language: "Financial precision with practical wisdom",
-      approach: "Challenge assumptions, demand details"
-    },
-    framework: {
-      clarifyingQuestions: [
-        "What's the worst-case scenario and can we survive it?",
-        "How does this affect our capital position and liquidity?",
-        "Are we being paid appropriately for this risk?"
-      ],
-      coreApproach: "Stress-test every decision against multiple economic scenarios", 
-      constraints: "Never take risks that could threaten the institution's survival"
-    }
+    expertise: ["Banking Excellence", "Risk Management", "Crisis Leadership", "Regulatory Navigation"],
+    philosophy: "Disciplined risk management, strong capital position, and long-term relationship building.",
+    approach: "Challenge assumptions, demand details"
   },
   "charlie-munger": {
     name: "Charlie Munger",
     role: "Mental Models & Critical Thinking Advisor", 
-    background: {
-      competencies: ["Multidisciplinary Thinking", "Cognitive Bias Recognition", "Decision Science", "Contrarian Analysis"],
-      philosophy: ["Invert, always invert", "It's not enough to be right, you must avoid being wrong", "Acquire worldly wisdom from multiple disciplines"],
-      decisionStyle: "Systematic thinking with healthy skepticism",
-      famousFor: "Being Warren's partner, developing lattice of mental models, contrarian wisdom"
-    },
-    communication: {
-      tone: "Intellectually challenging with wit",
-      language: "Precise and often contrarian",
-      approach: "Devil's advocate who challenges everything"
-    },
-    framework: {
-      clarifyingQuestions: [
-        "What mental models apply here and what could we be missing?",
-        "If we invert this problem, what would failure look like?",
-        "What cognitive biases might be affecting our judgment?"
-      ],
-      coreApproach: "Apply multiple disciplines and mental models to avoid mistakes",
-      constraints: "Always question popular thinking and look for what others miss"
-    }
+    expertise: ["Multidisciplinary Thinking", "Cognitive Bias Recognition", "Decision Science", "Contrarian Analysis"],
+    philosophy: "Use mental models from multiple disciplines to avoid cognitive biases and make better decisions.",
+    approach: "Devil's advocate who challenges everything"
   },
   "art-gensler": {
     name: "Art Gensler",
     role: "Design Strategy & Client Experience Advisor",
-    background: {
-      competencies: ["Design Excellence", "Client Relationship Building", "Brand Environment Creation", "Human-Centered Design"],
-      philosophy: ["Design serves people", "Collaboration creates excellence", "Environments shape behavior"],
-      decisionStyle: "Creative problem-solving with client focus",
-      famousFor: "Building world's largest architecture firm, pioneering workplace design"
-    },
-    communication: {
-      tone: "Collaborative and visionary",
-      language: "Visual thinking with practical application",
-      approach: "Understand the user experience first"
-    },
-    framework: {
-      clarifyingQuestions: [
-        "How does this create value for the people who will experience it?",
-        "What's the brand story this decision tells?",
-        "How can we design this to exceed expectations?"
-      ],
-      coreApproach: "Always start with human needs and work backwards to solution",
-      constraints: "Never sacrifice user experience for efficiency or cost-cutting"
-    }
+    expertise: ["Design Excellence", "Client Relationship Building", "Brand Environment Creation", "Human-Centered Design"],
+    philosophy: "Design should serve people and create meaningful experiences that enhance human potential.",
+    approach: "Understand the user experience first"
   }
 };
 
-export default class MyMCP extends WorkerEntrypoint {
+export default class AdvisoryBoardMCP extends WorkerEntrypoint {
   
-  async fetch(request: Request): Promise<Response> {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/sse') {
-      return this.handleSSE(request);
-    }
-    
-    return new Response('Advisory Board MCP Server is running!', {
-      headers: { 'Content-Type': 'text/plain' }
-    });
-  }
-
-  private async handleSSE(request: Request): Promise<Response> {
-    // Basic SSE endpoint for MCP
-    return new Response('data: {"jsonrpc":"2.0","id":1,"result":"Advisory Board MCP Server"}\n\n', {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      }
-    });
-  }
-
   /**
-   * Get individual advice from a specific board member
+   * Get individual advice from a specific board member.
+   * @param member The name of the board member (e.g., "tim-cook", "warren-buffett")
+   * @param situation Description of the business situation
+   * @param specific_question Optional specific question to ask
+   * @return Detailed advisory prompt for the AI to respond as that board member
    */
-  async get_advisor_input(member: string, situation: string, specific_question?: string): Promise<string> {
+  async getAdvisorInput(member: string, situation: string, specific_question?: string): Promise<string> {
     const advisor = BOARD_MEMBERS[member.toLowerCase().replace(/[\s-]/g, '-')];
     
     if (!advisor) {
       return `Board member "${member}" not found. Available advisors: ${Object.keys(BOARD_MEMBERS).join(', ')}`;
     }
 
-    const context = `PERSONA: ${advisor.name} - ${advisor.role}
+    return `PERSONA: ${advisor.name} - ${advisor.role}
 
-BACKGROUND & EXPERTISE:
-- Core competencies: ${advisor.background.competencies.join(', ')}
-- Leadership philosophy: ${advisor.background.philosophy.join(' | ')}
-- Decision-making style: ${advisor.background.decisionStyle}
-- Famous for: ${advisor.background.famousFor}
+EXPERTISE: ${advisor.expertise.join(', ')}
+PHILOSOPHY: ${advisor.philosophy}
+APPROACH: ${advisor.approach}
 
-COMMUNICATION STYLE:
-- Tone: ${advisor.communication.tone}
-- Language: ${advisor.communication.language}
-- Approach: ${advisor.communication.approach}
-
-ADVISORY FRAMEWORK:
-When consulted, I always:
-1. Ask clarifying questions: ${advisor.framework.clarifyingQuestions.join(' | ')}
-2. Apply my core philosophy: ${advisor.framework.coreApproach}
-3. Provide specific, actionable advice
-4. Challenge assumptions where appropriate
-5. Consider both short-term and long-term implications
-
-CONSTRAINTS:
-- Stay true to my established persona and values
-- Focus on practical, implementable solutions
-- ${advisor.framework.constraints}
-- Reference my background/experience when relevant
-
-CURRENT SITUATION: ${situation}
+SITUATION: ${situation}
 ${specific_question ? `SPECIFIC QUESTION: ${specific_question}` : ''}
 
-Now, as ${advisor.name}, I will:
-1. First ask my signature clarifying questions
-2. Apply my decision-making framework
-3. Provide specific advice based on my expertise
-4. Challenge you if you're not thinking strategically enough
-
-Respond as ${advisor.name} would, staying completely in character with my communication style and approach.`;
-
-    return context;
+Respond as ${advisor.name} would, providing specific, actionable advice based on your expertise and decision-making approach. Stay completely in character with your communication style.`;
   }
 
   /**
-   * Convene a full board meeting on a topic
+   * Convene a full board meeting on a topic.
+   * @param topic The main topic for discussion
+   * @param context Background context for the meeting
+   * @param urgency The urgency level (low, medium, high)
+   * @return Meeting facilitation prompt
    */
-  async convene_board_meeting(topic: string, context: string, urgency: 'low' | 'medium' | 'high' = 'medium'): Promise<string> {
-    const meeting_prompt = `VIRTUAL BOARD MEETING - ${topic.toUpperCase()}
+  async conveneBoardMeeting(topic: string, context: string, urgency: string = 'medium'): Promise<string> {
+    return `VIRTUAL BOARD MEETING - ${topic.toUpperCase()}
 
 CONTEXT: ${context}
 URGENCY: ${urgency}
 
-You are facilitating a board meeting with these distinguished advisors, each bringing their unique framework:
-
+Board Members Present:
 ${Object.entries(BOARD_MEMBERS).map(([key, advisor]) => 
-  `• ${advisor.name} (${advisor.role})
-    - Expertise: ${advisor.background.competencies.slice(0, 2).join(', ')}
-    - Will ask: "${advisor.framework.clarifyingQuestions[0]}"
-    - Approach: ${advisor.communication.approach}`
-).join('\n\n')}
+  `• ${advisor.name} (${advisor.role}) - ${advisor.expertise.slice(0, 2).join(', ')}`
+).join('\n')}
 
 MEETING STRUCTURE:
-1. SITUATION ANALYSIS - What are we really dealing with?
-2. INDIVIDUAL PERSPECTIVES - Each advisor provides their lens
-3. CLARIFYING QUESTIONS - Each advisor asks their signature questions
-4. RISK & OPPORTUNITY ASSESSMENT - What could go right/wrong?
-5. CONSENSUS BUILDING - Where do we align and disagree?
-6. ACTIONABLE RECOMMENDATIONS - Specific next steps
-7. SUCCESS METRICS - How will we measure progress?
+1. SITUATION ANALYSIS
+2. INDIVIDUAL PERSPECTIVES from each board member
+3. RISK & OPPORTUNITY ASSESSMENT
+4. ACTIONABLE RECOMMENDATIONS
+5. NEXT STEPS
 
-Each advisor must:
-- Stay true to their established persona and communication style
-- Ask their signature clarifying questions from their framework
-- Apply their decision-making approach to this situation
-- Challenge assumptions based on their expertise
-- Provide specific, implementable advice
-- Consider both short-term execution and long-term implications
+Each advisor should provide their unique perspective, ask clarifying questions, and give specific advice based on their expertise. Format as a structured board meeting with clear sections for each advisor's input.`;
+  }
 
-Format as a structured board meeting with clear sections for each advisor's complete input, including their questions, analysis, and recommendations.`;
+  /**
+   * Get advice for crisis management situations.
+   * @param crisis_description What crisis is happening
+   * @param immediate_concerns Most pressing concerns
+   * @return Crisis management advisory prompt
+   */
+  async crisisManagement(crisis_description: string, immediate_concerns: string): Promise<string> {
+    return `EMERGENCY BOARD MEETING - CRISIS RESPONSE
 
-    return meeting_prompt;
+CRISIS: ${crisis_description}
+IMMEDIATE CONCERNS: ${immediate_concerns}
+
+Your board is convening an emergency session. Each advisor should provide:
+1. Immediate actions (next 24 hours)
+2. Week 1 priorities 
+3. Key messages for stakeholders
+4. Long-term strategic adjustments
+
+Focus on practical, executable recommendations for both immediate stabilization and long-term recovery.`;
+  }
+
+  async fetch(request: Request): Promise<Response> {
+    return new ProxyToSelf(this).fetch(request);
   }
 }
