@@ -148,7 +148,7 @@ const BOARD_MEMBERS = {
   }
 };
 
-export default class AdvisoryBoardMCP extends WorkerEntrypoint {
+export default class MyMCP extends WorkerEntrypoint {
   
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
