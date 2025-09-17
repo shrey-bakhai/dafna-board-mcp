@@ -1,6 +1,6 @@
 {
   "name": "dafna-board-mcp",
-  "version": "0.0.0",
+  "version": "0.0.0", 
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
@@ -8,7 +8,7 @@
     "start": "wrangler dev"
   },
   "dependencies": {
-    "workers-mcp": "^0.1.0"
+    "workers-mcp": "^0.0.13"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241004.0",
